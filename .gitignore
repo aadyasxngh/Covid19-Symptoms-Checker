@@ -1,19 +1,8 @@
-# Byte-compiled / cache files
-__pycache__/
-*.py[cod]
-
-# Virtual environment
 venv/
-
-# Model files
+__pycache__/
+*.pyc
 *.pkl
 *.h5
-
-# OS junk
 .DS_Store
-
-# Streamlit cache
 .streamlit/
-
-# CSVs/datasets (optional)
 *.csv
