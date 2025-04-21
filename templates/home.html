@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>COVID-19 Prediction</title>
+</head>
+<body>
+    <h2>COVID-19 Symptoms Checker</h2>
+    <form action="/predict" method="POST">
+        <!-- Replace these inputs with your actual features -->
+        <input type="number" name="feature1" placeholder="Fever (0 or 1)" required><br>
+        <input type="number" name="feature2" placeholder="Cough (0 or 1)" required><br>
+        <input type="number" name="feature3" placeholder="Fatigue (0 or 1)" required><br>
+        <!-- Add all required inputs matching your model’s expected number of features -->
+
+        <br>
+        <label>Select Model:</label>
+        <select name="model" required>
+            <option value="lr">Logistic Regression</option>
+            <option value="dt">Decision Tree</option>
+            <option value="rf">Random Forest</option>
+            <option value="nb">Naive Bayes</option>
+            <option value="knn">K-Nearest Neighbors</option>
+            <option value="dl">Deep Learning</option>
+        </select>
+
+        <br><br>
+        <input type="submit" value="Predict">
+    </form>
+</body>
+</html>
