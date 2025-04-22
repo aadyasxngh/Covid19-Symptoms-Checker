@@ -45,7 +45,7 @@ requests==2.32.3
 rich==14.0.0
 rpds-py==0.24.0
 scikit-learn==1.6.1
-scipy==1.15.2
+scipy>=1.10
 setuptools==79.0.0
 six==1.17.0
 smmap==5.0.2
