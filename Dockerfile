@@ -13,4 +13,4 @@ RUN pip install --upgrade pip && \
     pip install pytest
 
 # Default command (can be overridden in GitHub Actions)
-CMD ["pytest"]
+CMD ["python app.py"]
