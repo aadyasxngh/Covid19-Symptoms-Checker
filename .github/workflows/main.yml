@@ -1,59 +1,27 @@
-name: Docker CI/CD
+push-to-dockerhub:
+  needs: build-and-test
+  runs-on: ubuntu-latest
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  steps:
+    name: Checkout code
+    uses: actions/checkout@v3
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+    name: Set up QEMU
+    uses: docker/setup-qemu-action@v2
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v3
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+    name: Log in to Docker Hub
+    uses: docker/login-action@v3
+    with:
+      username: ${{ secrets.DOCKERHUB_USERNAME }}
+      password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+    name: Load Docker image from cache
+    run: docker load -i covid19-symptoms-checker.tar
 
-      - name: Build Docker image (no push yet)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true  # load image to local Docker cache
-          tags: local/covid19-symptoms-checker:latest
-
-      - name: Run container and execute tests inside
-        run: |
-          docker run --rm local/covid19-symptoms-checker:latest pytest
-
-  push-to-dockerhub:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/covid19-symptoms-checker:latest
+    name: Push Docker image to Docker Hub
+    run: |
+      docker tag local/covid19-symptoms-checker:latest ${{ secrets.DOCKERHUB_USERNAME }}/covid19-symptoms-checker:latest
+      docker push ${{ secrets.DOCKERHUB_USERNAME }}/covid19-symptoms-checker:latest
