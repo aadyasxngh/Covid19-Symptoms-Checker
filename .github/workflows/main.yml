@@ -1,27 +1,41 @@
-push-to-dockerhub:
-  needs: build-and-test
-  runs-on: ubuntu-latest
+name: Python Streamlit App CI
 
-  steps:
-    name: Checkout code
-    uses: actions/checkout@v3
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-    name: Set up QEMU
-    uses: docker/setup-qemu-action@v2
+jobs:
+  build:
 
-    name: Set up Docker Buildx
-    uses: docker/setup-buildx-action@v3
+    runs-on: ubuntu-latest
 
-    name: Log in to Docker Hub
-    uses: docker/login-action@v3
-    with:
-      username: ${{ secrets.DOCKERHUB_USERNAME }}
-      password: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-    name: Load Docker image from cache
-    run: docker load -i covid19-symptoms-checker.tar
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
-    name: Push Docker image to Docker Hub
-    run: |
-      docker tag local/covid19-symptoms-checker:latest ${{ secrets.DOCKERHUB_USERNAME }}/covid19-symptoms-checker:latest
-      docker push ${{ secrets.DOCKERHUB_USERNAME }}/covid19-symptoms-checker:latest
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint with pylint
+      run: |
+        pip install pylint
+        pylint app.py ml_dl_predict.py train_models.py --disable=R,C
+
+    - name: Run tests
+      run: |
+        pip install pytest
+        pytest tests/
+
+    - name: Check Streamlit app runs
+      run: |
+        streamlit run app.py & sleep 10
+        curl -I http://localhost:8501
